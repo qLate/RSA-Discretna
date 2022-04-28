@@ -3,6 +3,7 @@ import threading
 
 import rsa
 
+from string_int_converter import int_to_string, string_to_int
 
 class Client:
     def __init__(self, server_ip: str, port: int, username: str) -> None:
@@ -37,19 +38,18 @@ class Client:
     def read_handler(self):
         while True:
             msg = int(self.s.recv(1024).decode())
-            msg = rsa.decrypt(msg, self.private[0], self.private[1])
+            msg = pow(msg, self.private[1], self.private[0])
 
-            print(msg)
+            print(int_to_string(msg))
 
     def write_handler(self):
         while True:
-            message = input()
+            msg = input()
 
-            # encrypt message with the secrete key
+            str_int = string_to_int(msg)
 
-            # ...
-
-            self.s.send(message.encode())
+            encoded = pow(str_int, self.server_public_key[1], self.server_public_key[0])
+            self.s.send(str(encoded).encode())
 
 
 if __name__ == "__main__":

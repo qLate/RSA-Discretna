@@ -1,5 +1,6 @@
 from prime_generator import get_big_prime
 
+
 def generate_keys():
     p = get_big_prime()
     q = get_big_prime()
@@ -11,7 +12,7 @@ def generate_keys():
     while gcd(e, euler) != 1:
         e += 1
 
-    d = extended_euclid(n, e)[2] % n
+    d = extended_euclid(euler, e)[2]
 
     return (n, e), (n, d)
 
@@ -30,12 +31,13 @@ def extended_euclid(a, b):
     return d, y, x - (a // b) * y
 
 
-public, private = generate_keys()
-print(public, private)
+if __name__ == "__main__":
+    public, private = generate_keys()
+    print(public, private)
 
-msg = 3
-print(msg)
-encrypted = pow(msg, public[1], public[0])
-print(encrypted)
-decrypted = pow(encrypted, private[1], private[0])
-print(decrypted)
+    msg = 123456
+    print(msg)
+    encrypted = pow(msg, public[1], public[0])
+    print(encrypted)
+    decrypted = pow(encrypted, private[1], private[0])
+    print(decrypted)

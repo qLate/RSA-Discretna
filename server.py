@@ -40,23 +40,25 @@ class Server:
             threading.Thread(target=self.handle_client, args=(c, addr,)).start()
 
     def broadcast(self, msg: str):
+        str_int = string_to_int(msg)
+
         for client in self.clients:
             user_public_key = self.client_public_keys[client]
 
-            print(type(msg), msg)
-            msg = string_to_int(msg)
-            print(msg)
-            msg = rsa.encrypt(msg, user_public_key[0], user_public_key[1])
-
-            client.send(str(msg).encode())
+            encoded = pow(str_int, user_public_key[1], user_public_key[0])
+            client.send(str(encoded).encode())
 
     def handle_client(self, c: socket, addr):
         while True:
-            msg = c.recv(1024)
+            msg = int(c.recv(1024).decode())
+            msg = pow(msg, self.private[1], self.private[0])
 
             for client in self.clients:
                 if client != c:
-                    client.send(msg)
+                    user_public_key = self.client_public_keys[client]
+
+                    encoded = pow(msg, user_public_key[1], user_public_key[0])
+                    client.send(str(encoded).encode())
 
 
 if __name__ == "__main__":
