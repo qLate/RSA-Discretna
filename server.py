@@ -1,6 +1,10 @@
 import socket
 import threading
 
+import rsa
+from string_int_converter import string_to_int
+
+
 class Server:
 
     def __init__(self, port: int) -> None:
@@ -8,13 +12,16 @@ class Server:
         self.port = port
         self.clients = []
         self.username_lookup = {}
-        self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        self.client_public_keys = {}
 
     def start(self):
         self.s.bind((self.host, self.port))
         self.s.listen(100)
 
-        # generate keys ...
+        public, private = rsa.generate_keys()
+        self.private = private
 
         while True:
             c, addr = self.s.accept()
@@ -25,30 +32,25 @@ class Server:
             self.clients.append(c)
 
             # send public key to the client 
+            client_public_key = [int(item) for item in c.recv(1024).decode().split()]
+            self.client_public_keys[c] = client_public_key
 
-            # ...
+            c.send(" ".join([str(item) for item in public]).encode())
 
-
-            # encrypt the secret with the clients public key
-
-            # ...
-
-            # send the encrypted secret to a client 
-
-            # ...
-
-            threading.Thread(target=self.handle_client,args=(c,addr,)).start()
+            threading.Thread(target=self.handle_client, args=(c, addr,)).start()
 
     def broadcast(self, msg: str):
-        for client in self.clients: 
+        for client in self.clients:
+            user_public_key = self.client_public_keys[client]
 
-            # encrypt the message
+            print(type(msg), msg)
+            msg = string_to_int(msg)
+            print(msg)
+            msg = rsa.encrypt(msg, user_public_key[0], user_public_key[1])
 
-            # ...
+            client.send(str(msg).encode())
 
-            client.send(msg.encode())
-
-    def handle_client(self, c: socket, addr): 
+    def handle_client(self, c: socket, addr):
         while True:
             msg = c.recv(1024)
 
@@ -56,6 +58,7 @@ class Server:
                 if client != c:
                     client.send(msg)
 
+
 if __name__ == "__main__":
-    s = Server(9001)
+    s = Server(9000)
     s.start()

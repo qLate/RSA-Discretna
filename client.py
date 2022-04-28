@@ -3,6 +3,7 @@ import threading
 
 import rsa
 
+
 class Client:
     def __init__(self, server_ip: str, port: int, username: str) -> None:
         self.server_ip = server_ip
@@ -20,26 +21,25 @@ class Client:
         self.s.send(self.username.encode())
 
         public, private = rsa.generate_keys()
+        self.private = private
 
         # exchange public keys
+        self.s.send(" ".join([str(item) for item in public]).encode())
 
-        # receive the encrypted secret key
+        server_public_key = [int(item) for item in self.s.recv(1024).decode().split()]
+        self.server_public_key = server_public_key
 
-        message_handler = threading.Thread(target=self.read_handler,args=())
+        message_handler = threading.Thread(target=self.read_handler, args=())
         message_handler.start()
-        input_handler = threading.Thread(target=self.write_handler,args=())
+        input_handler = threading.Thread(target=self.write_handler, args=())
         input_handler.start()
 
-    def read_handler(self): 
+    def read_handler(self):
         while True:
-            message = self.s.recv(1024).decode()
+            msg = int(self.s.recv(1024).decode())
+            msg = rsa.decrypt(msg, self.private[0], self.private[1])
 
-            # decrypt message with the secrete key
-
-            # ... 
-
-
-            print(message)
+            print(msg)
 
     def write_handler(self):
         while True:
@@ -51,6 +51,7 @@ class Client:
 
             self.s.send(message.encode())
 
+
 if __name__ == "__main__":
-    cl = Client("127.0.0.1", 9001, "b_g")
+    cl = Client("127.0.0.1", 9000, "b_g")
     cl.init_connection()

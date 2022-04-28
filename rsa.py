@@ -1,4 +1,4 @@
-from prime_generator import  get_big_prime
+from prime_generator import get_big_prime
 
 def generate_keys():
     p = get_big_prime()
@@ -30,9 +30,12 @@ def extended_euclid(a, b):
     return d, y, x - (a // b) * y
 
 
-def encrypt(msg: int, e, n):
-    return (msg ** e) % n
+public, private = generate_keys()
+print(public, private)
 
-
-def decrypt(encrypted: int, e, n):
-    pass
+msg = 3
+print(msg)
+encrypted = pow(msg, public[1], public[0])
+print(encrypted)
+decrypted = pow(encrypted, private[1], private[0])
+print(decrypted)
