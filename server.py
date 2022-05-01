@@ -54,17 +54,15 @@ class Server:
             hash+=' '
             msg=int(msg)
             msg = pow(msg, self.private[1], self.private[0])
-            # print(hash+str(encoded))
 
             for client in self.clients:
                 if client != c:
                     user_public_key = self.client_public_keys[client]
 
                     encoded = pow(msg, user_public_key[1], user_public_key[0])
-                    # print(hash+str(encoded))
                     client.send((hash+str(encoded)).encode())
 
 
 if __name__ == "__main__":
-    s = Server(9007)
+    s = Server(9012)
     s.start()

@@ -49,7 +49,7 @@ class Client:
             final_msg=int_to_string(msg)
             sha256_digest=sha256(final_msg.encode('utf-8'))
             digest=sha256_digest.hexdigest()
-            succesfulness=', got succesfully' if hash==digest or hash=='' else ', got unsuccesfully'
+            succesfulness='(got succesfully)' if compare_digest(hash, digest) or hash=='' else '(got unsuccesfully)'
             print(final_msg, succesfulness)
 
     def write_handler(self):
@@ -65,5 +65,6 @@ class Client:
 
 
 if __name__ == "__main__":
-    cl = Client("127.0.0.1", 9007, "b_g")
+    cl = Client("127.0.0.1", 9012, "b_g")
     cl.init_connection()
+
