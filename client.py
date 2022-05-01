@@ -40,9 +40,8 @@ class Client:
         while True:
             hash=''
             all_msg=self.s.recv(1024).decode()
-            # print(all_msg)
             if ' ' in all_msg:
-                hash, msg = self.s.recv(1024).decode().split(' ', 1)
+                hash, msg = all_msg.split(' ', 1)
             else:
                 msg=all_msg
             msg=int(msg)
@@ -50,7 +49,7 @@ class Client:
             final_msg=int_to_string(msg)
             sha256_digest=sha256(final_msg.encode('utf-8'))
             digest=sha256_digest.hexdigest()
-            succesfulness='succesfully' if hash==digest or hash=='' else 'unsuccesfully'
+            succesfulness=', got succesfully' if hash==digest or hash=='' else ', got unsuccesfully'
             print(final_msg, succesfulness)
 
     def write_handler(self):
@@ -58,8 +57,7 @@ class Client:
             msg = input()
             sha256_digest=sha256(msg.encode('utf-8'))
             digest=sha256_digest.hexdigest()+' '
-            # sha256_digest=sha256(msg)
-            # hassed_msg=
+          
             str_int = string_to_int(msg)
 
             encoded = pow(str_int, self.server_public_key[1], self.server_public_key[0])
@@ -67,5 +65,5 @@ class Client:
 
 
 if __name__ == "__main__":
-    cl = Client("127.0.0.1", 9004, "b_g")
+    cl = Client("127.0.0.1", 9007, "b_g")
     cl.init_connection()

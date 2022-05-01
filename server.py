@@ -66,5 +66,5 @@ class Server:
 
 
 if __name__ == "__main__":
-    s = Server(9004)
+    s = Server(9007)
     s.start()
