@@ -1,6 +1,7 @@
 import socket
 import threading
-
+from hashlib import sha256
+from secrets import compare_digest
 import rsa
 
 from string_int_converter import int_to_string, string_to_int
@@ -37,21 +38,34 @@ class Client:
 
     def read_handler(self):
         while True:
-            msg = int(self.s.recv(1024).decode())
+            hash=''
+            all_msg=self.s.recv(1024).decode()
+            # print(all_msg)
+            if ' ' in all_msg:
+                hash, msg = self.s.recv(1024).decode().split(' ', 1)
+            else:
+                msg=all_msg
+            msg=int(msg)
             msg = pow(msg, self.private[1], self.private[0])
-
-            print(int_to_string(msg))
+            final_msg=int_to_string(msg)
+            sha256_digest=sha256(final_msg.encode('utf-8'))
+            digest=sha256_digest.hexdigest()
+            succesfulness='succesfully' if hash==digest or hash=='' else 'unsuccesfully'
+            print(final_msg, succesfulness)
 
     def write_handler(self):
         while True:
             msg = input()
-
+            sha256_digest=sha256(msg.encode('utf-8'))
+            digest=sha256_digest.hexdigest()+' '
+            # sha256_digest=sha256(msg)
+            # hassed_msg=
             str_int = string_to_int(msg)
 
             encoded = pow(str_int, self.server_public_key[1], self.server_public_key[0])
-            self.s.send(str(encoded).encode())
+            self.s.send((digest+str(encoded)).encode())
 
 
 if __name__ == "__main__":
-    cl = Client("127.0.0.1", 9000, "b_g")
+    cl = Client("127.0.0.1", 9004, "b_g")
     cl.init_connection()
