@@ -18,4 +18,4 @@ If a user got a correct message, he could see (reached successfully) at the end 
 
 #####Here are some examples of the chat:
 
-![example](RSA-Discretna/example.png)
+![example](example.png)
